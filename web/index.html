@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神控無限簡報筆系統 - 電腦端</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <h1><i class="fa-solid fa-bolt-lightning"></i> 神控無限簡報筆系統</h1>
+                <p>SHEN REMOTE PRESENTER & MOUSE CONTROLLER</p>
+            </div>
+            <div class="header-actions">
+                <a href="#" id="ip-link" target="_blank" class="ip-badge" style="text-decoration: none;">
+                    <i class="fas fa-link"></i> <span id="url-text">http://0.0.0.0:8000/remote.html</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Side: Connection & QR Code -->
+            <div class="card qr-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 480px;">
+                <div class="section-title" style="width: 100%; justify-content: center; font-size: 1.4rem;">
+                    <i class="fas fa-qrcode"></i> 手機連線 QR Code
+                </div>
+                
+                <div id="qrcode" style="margin: 1.5rem 0;"></div>
+                
+                <div class="status-panel" style="display: flex; align-items: center; gap: 0.8rem; margin-top: 1rem; background: rgba(255,255,255,0.03); padding: 0.8rem 1.5rem; border-radius: 2rem; border: 1px solid var(--glass-border);">
+                    <div id="conn-indicator" style="width: 12px; height: 12px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 10px var(--danger);"></div>
+                    <span id="conn-status-text" style="font-weight: 600; color: var(--text-muted);">等待遠端連線...</span>
+                </div>
+                
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1.5rem; text-align: center; line-height: 1.6; max-width: 80%;">
+                    請將手機與電腦連接至<strong style="color: var(--accent);">同一個 WiFi 網路</strong>，然後掃描上方 QR Code，即可開始遠端控制電腦。
+                </p>
+            </div>
+
+            <!-- Right Side: Operation Logs & Info -->
+            <div class="side-col" style="display: flex; flex-direction: column; gap: 1.5rem; height: 100%;">
+                <!-- Command Logs Console -->
+                <div class="card" style="flex: 1; display: flex; flex-direction: column; min-height: 280px;">
+                    <div class="section-title" style="justify-content: space-between;">
+                        <span><i class="fas fa-terminal"></i> 即時控制日誌</span>
+                        <button class="btn btn-secondary btn-mini" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;" onclick="clearLogs()">
+                            <i class="fas fa-trash-alt"></i> 清除日誌
+                        </button>
+                    </div>
+                    
+                    <div class="file-list" id="log-list" style="flex: 1; overflow-y: auto; font-family: monospace; font-size: 0.9rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.8rem; border: 1px solid var(--glass-border); min-height: 180px;">
+                        <!-- Log items will be injected here -->
+                        <div style="color: var(--text-muted); text-align: center; margin-top: 2rem;">
+                            尚無控制操作記錄
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guide / Instructions -->
+                <div class="card">
+                    <div class="section-title">
+                        <span><i class="fas fa-keyboard"></i> 簡報快速鍵對應說明</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8;">
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-play" style="color: var(--accent); margin-right: 0.5rem; width: 15px;"></i> <strong style="color: #fff;">播放投影片</strong>：模擬鍵盤 F5 鍵</li>
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-stop" style="color: var(--danger); margin-right: 0.5rem; width: 15px;"></i> <strong style="color: #fff;">結束放映</strong>：模擬鍵盤 Escape 鍵</li>
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-arrow-right" style="color: var(--primary); margin-right: 0.5rem; width: 15px;"></i> <strong style="color: #fff;">下一頁 / 動畫</strong>：模擬鍵盤 PageDown 鍵</li>
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-arrow-left" style="color: var(--primary); margin-right: 0.5rem; width: 15px;"></i> <strong style="color: #fff;">上一頁</strong>：模擬鍵盤 PageUp 鍵</li>
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-desktop" style="color: #ffb703; margin-right: 0.5rem; width: 15px;"></i> <strong style="color: #fff;">投影片黑屏</strong>：模擬鍵盤 B 鍵</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="container">
+        <p>Copyright © Liyuchiutiger Gongminshen</p>
+    </footer>
+
+    <!-- Mascot -->
+    <div id="mascot" class="mascot-container" title="把我拖曳到任何地方！">
+        <img src="image/LiyuChillGuy.svg" class="mascot-img" alt="Mascot">
+    </div>
+
+    <div id="toast" class="status-toast"></div>
+
+    <script>
+        let currentState = {};
+
+        async function init() {
+            currentState = await eel.get_system_status()();
+            update_ui(currentState);
+            generateQR();
+            setupMascotDrag();
+        }
+
+        function generateQR() {
+            const url = `http://${currentState.server_ip}:8000/remote.html`;
+            const qrcodeDiv = document.getElementById("qrcode");
+            qrcodeDiv.innerHTML = "";
+            new QRCode(qrcodeDiv, {
+                text: url,
+                width: 220,
+                height: 220,
+                colorDark: "#0c0f1d",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            const link = document.getElementById("ip-link");
+            document.getElementById("url-text").innerText = url;
+            link.href = url;
+        }
+
+        eel.expose(update_ui);
+        function update_ui(state) {
+            console.log("DEBUG: UI Update Received", state);
+            currentState = state;
+
+            // 更新連線狀態
+            const indicator = document.getElementById("conn-indicator");
+            const statusText = document.getElementById("conn-status-text");
+            if (state.client_connected) {
+                indicator.style.background = "var(--accent)";
+                indicator.style.boxShadow = "0 0 12px var(--accent)";
+                statusText.innerText = "行動端已連線";
+                statusText.style.color = "var(--accent)";
+            } else {
+                indicator.style.background = "var(--danger)";
+                indicator.style.boxShadow = "0 0 12px var(--danger)";
+                statusText.innerText = "等待遠端連線...";
+                statusText.style.color = "var(--text-muted)";
+            }
+
+            // 更新日誌清單
+            const logList = document.getElementById("log-list");
+            if (!state.logs || state.logs.length === 0) {
+                logList.innerHTML = '<div style="color: var(--text-muted); text-align: center; margin-top: 2rem;">尚無控制操作記錄</div>';
+            } else {
+                // 由新到舊顯示
+                logList.innerHTML = state.logs.slice().reverse().map(log => `
+                    <div style="margin-bottom: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 0.4rem; display: flex; gap: 0.8rem; animation: slideIn 0.2s ease-out;">
+                        <span style="color: var(--accent); min-width: 70px;">[${log.time}]</span>
+                        <span style="color: var(--text-main);">${log.action}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function clearLogs() {
+            await eel.clear_logs()();
+            showToast("已清除日誌記錄");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerHTML = msg;
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        function setupMascotDrag() {
+            const mascot = document.getElementById('mascot');
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+
+            mascot.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                offset.x = e.clientX - mascot.offsetLeft;
+                offset.y = e.clientY - mascot.offsetTop;
+                mascot.style.transition = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                mascot.style.left = (e.clientX - offset.x) + 'px';
+                mascot.style.top = (e.clientY - offset.y) + 'px';
+                mascot.style.bottom = 'auto'; // 停用固定底部
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                mascot.style.transition = 'all 0.3s';
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
