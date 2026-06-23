@@ -481,6 +481,13 @@ def monitor_heartbeat():
                     except Exception:
                         pass
 
+def handle_close(page, sockets):
+    """當頁面關閉時的回呼函式。若電腦端主視窗關閉，則強制結束整個程式。"""
+    if 'index.html' in page:
+        print("電腦端主畫面已關閉，正在結束程式...")
+        import os
+        os._exit(0)
+
 def main():
     eel.init(web_dir)
     
@@ -497,7 +504,7 @@ def main():
     try:
         # 啟動 Eel 應用程式。主畫面為 index.html (電腦端)
         # 手機控制端網址將是 http://<ip>:<port>/remote.html
-        eel.start('index.html', size=(1000, 750), host=ip, port=port)
+        eel.start('index.html', size=(1000, 750), host=ip, port=port, close_callback=handle_close)
     except (SystemExit, KeyboardInterrupt):
         print("系統關閉中...")
 
